@@ -8,4 +8,6 @@ mark 2
 unmark 17
 list
 test
+delete 3
+list
 bye
