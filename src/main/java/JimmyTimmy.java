@@ -8,14 +8,23 @@ public class JimmyTimmy {
         System.out.println(greet);
 
         Scanner scanner = new Scanner(System.in);
-        String echo = "";
+        String[] tasks = new String[100];
+        int taskCount = 0;
         while (true) {
-            echo = scanner.nextLine();
-            if (echo.equalsIgnoreCase("bye")) {
+            String input = scanner.nextLine().trim();
+            if (input.equalsIgnoreCase("bye")) {
                 System.out.println(lb + "\n" + logoff);
                 break;
+            } else if (input.equalsIgnoreCase("list")) {
+                System.out.println(lb);
+                for (int i = 0; i< taskCount; i++) {
+                    System.out.println((i + 1) + ". " + tasks[i]);
+                }
+                System.out.println(lb);
             } else {
-                System.out.println(lb + echo + "\n" + lb);
+                tasks[taskCount] = input;
+                taskCount++;
+                System.out.println(lb + "added:" + input + "\n" + lb);
             }
         }
         scanner.close();
