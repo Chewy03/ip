@@ -67,4 +67,17 @@ public class Ui {
             System.out.println((i + 1) + ". " + tasks.get(i));
         }
     }
+
+    public void showFoundTasks(ArrayList<Task> tasks) {
+        if (tasks.isEmpty()) {
+            System.out.println("No matching tasks found!");
+        } else {
+            System.out.println("Here are the matching tasks in your list:");
+            int count = 1;
+            for (Task task : tasks) {
+                System.out.println(count + "." + task);
+                count++;
+            }
+        }
+    }
 }
