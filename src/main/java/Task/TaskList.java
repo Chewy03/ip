@@ -53,6 +53,18 @@ public class TaskList {
         ui.showTaskList(tasks);
     }
 
+    /**
+     * Returns a list of tasks whose description contains the given keyword.
+     */
+    public ArrayList<Task> findTasks(String keyword) {
+        ArrayList<Task> matches = new ArrayList<>();
+        for (Task task : tasks) {
+            if (task.getDescription().toLowerCase().contains(keyword.toLowerCase())) {
+                matches.add(task);
+            }
+        }
+        return matches;
+    }
 
     public int size() {
         return tasks.size();
