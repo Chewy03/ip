@@ -57,6 +57,14 @@ public class JimmyTimmy {
                     Task removed = tasks.deleteTask(index);
                     storage.save(tasks.getTasks());
                     ui.showTaskRemoved(removed, tasks.size());
+                } else if (input.startsWith("find")) {
+                    String keyword = input.substring(4).trim();
+                    if (keyword.isEmpty()) {
+                        ui.showError("Please provide a keyword to search for.");
+                    } else {
+                        ArrayList<Task> results = tasks.findTasks(keyword);
+                        ui.showFoundTasks(results);
+                    }
                 } else {
                     Task task = Parser.parseTask(input);
                     tasks.addTask(task);
