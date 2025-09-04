@@ -1,15 +1,23 @@
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.io.IOException;
 
 public class JimmyTimmy {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         String lb = "____________________________________________________________\n";
         String greet = lb + "Hello! I'm JimmyTimmy\n" + "What can I do for you?\n" + lb;
         String logoff = "Bye. Hope to see you again soon!\n" + lb;
         System.out.println(greet);
 
+        Storage storage = new Storage("./data/jimmyTimmy.txt");
+        ArrayList<Task> tasks;
+        try {
+            tasks = storage.load();
+        } catch (IOException e) {
+            tasks = new ArrayList<>();
+        }
+
         Scanner scanner = new Scanner(System.in);
-        ArrayList<Task> tasks = new ArrayList<>();
         while (true) {
             String input = scanner.nextLine().trim();
             try {
@@ -29,6 +37,7 @@ public class JimmyTimmy {
                     int index = Integer.parseInt(input.split(" ")[1]) - 1;
                     if (index >= 0 && index < tasks.size()) {
                         tasks.get(index).markAsDone();
+                        storage.save(tasks);
                         System.out.println(lb + "Nice! I've marked this task as done:\n   " + tasks.get(index) + "\n" + lb);
                     } else {
                         throw new JimmyTimmyException("Task number does not exist!");
@@ -37,6 +46,7 @@ public class JimmyTimmy {
                     int index = Integer.parseInt(input.split(" ")[1]) - 1;
                     if (index >= 0 && index < tasks.size()) {
                         tasks.get(index).markAsNotDone();
+                        storage.save(tasks);
                         System.out.println(lb + "OK, I've marked this task as not done yet:\n   " +
                                 tasks.get(index) + "\n" + lb);
                     } else {
@@ -47,8 +57,10 @@ public class JimmyTimmy {
                         if (desc.isEmpty()) {
                             throw new JimmyTimmyException("The description of a todo cannot be empty.");
                         }
-                    tasks.add(new ToDo(desc));
-                    System.out.println(lb + "Got it. I've added this task:\n" + tasks.get(tasks.size() -1) +
+                        tasks.add(new ToDo(desc));
+                        storage.save(tasks);
+
+                        System.out.println(lb + "Got it. I've added this task:\n" + tasks.get(tasks.size() -1) +
                             "\nNow you have " + tasks.size() + " tasks in the list.\n" + lb);
                 } else if (input.startsWith("deadline")) {
                     String sliced = input.length() > 8 ? input.substring(8).trim() : "";
@@ -64,6 +76,7 @@ public class JimmyTimmy {
                     String desc = details[0];
                     String dueDate = details[1];
                     tasks.add(new Deadline(desc, dueDate));
+                    storage.save(tasks);
                     System.out.println(lb + "Got it. I've added this task:\n" + tasks.get(tasks.size() - 1) +
                             "\nNow you have " + tasks.size() + " tasks in the list.\n" + lb);
                 } else if (input.startsWith("event")) {
@@ -79,6 +92,7 @@ public class JimmyTimmy {
                     String start = details[1];
                     String end = details[2];
                     tasks.add(new Event(desc, start, end));
+                    storage.save(tasks);
                     System.out.println(lb + "Got it. I've added this task:\n" + tasks.get(tasks.size() - 1) +
                             "\nNow you have " + tasks.size() + " tasks in the list.\n" + lb);
                 } else if (input.startsWith("delete ")) {
@@ -87,6 +101,7 @@ public class JimmyTimmy {
                         throw new JimmyTimmyException("Task number does not exist!");
                     }
                     Task removed = tasks.remove(index);
+                    storage.save(tasks);
                     System.out.println(lb + "Noted. I've removed this task:\n   " +
                             removed + "\nNow you have " + tasks.size() + " tasks in the list.\n" + lb);
                 } else {
