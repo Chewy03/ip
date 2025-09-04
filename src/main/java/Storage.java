@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class Storage {
@@ -77,7 +78,8 @@ public class Storage {
             } else if (task instanceof Event) {
                 Event e = (Event) task;
                 line = "E | " + (task.isDone ? "1" : "0") + " | " + e.description
-                        + " | " + e.start + " | " + e.end;
+                        + " | " + e.start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"))
+                        + " | " + e.end.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
             } else {
                 continue;
             }
