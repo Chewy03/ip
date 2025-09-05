@@ -10,14 +10,34 @@ import task.Event;
 import task.Task;
 import task.ToDo;
 
+/**
+ * The {@code Storage} class is responsible for saving and loading tasks
+ * to and from a local file. It ensures data persistence for the
+ * JimmyTimmy application across program runs.
+ */
 public class Storage {
+
+    /** The file where tasks are stored. */
     private final File file;
+
+    /** Date-time formatter used for deadlines and event times. */
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
 
+    /**
+     * Constructs a new {@code Storage} object for a specific file path.
+     *
+     * @param filePath the path to the file used for saving and loading tasks
+     */
     public Storage(String filePath) {
         this.file = new File(filePath);
     }
 
+    /**
+     * Ensures that the storage file exists.
+     * If the file or its parent directories do not exist, they are created.
+     *
+     * @throws IOException if the file cannot be created
+     */
     private void checkFile() throws IOException {
         if (!file.exists()) {
             file.getParentFile().mkdirs();
@@ -25,6 +45,14 @@ public class Storage {
         }
     }
 
+    /**
+     * Loads tasks from the storage file.
+     * Each line is parsed into a {@link ToDo}, {@link Deadline}, or {@link Event}.
+     * Corrupted or unrecognized lines are skipped with a warning.
+     *
+     * @return a list of {@link Task} objects loaded from the file
+     * @throws IOException if the file cannot be read
+     */
     public ArrayList<Task> load() throws IOException {
         checkFile();
         ArrayList<Task> tasks = new ArrayList<>();
@@ -67,6 +95,13 @@ public class Storage {
         return tasks;
     }
 
+    /**
+     * Saves a list of tasks to the storage file.
+     * Each task is serialized into a plain-text line according to its type.
+     *
+     * @param tasks the list of tasks to save
+     * @throws IOException if the file cannot be written
+     */
     public void save(ArrayList<Task> tasks) throws IOException {
         checkFile();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
