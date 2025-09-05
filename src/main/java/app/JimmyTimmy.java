@@ -9,13 +9,24 @@ import ui.Ui;
 
 import java.io.IOException;
 import java.util.ArrayList;
-
+/**
+ * The {@code JimmyTimmy} class represents the main application that manages tasks through
+ * user commands. It handles reading input, updating the task list,
+ * saving tasks to persistent storage, and displaying output to the user.
+ */
 public class JimmyTimmy {
 
     private Storage storage;
     private TaskList tasks;
     private Ui ui;
 
+    /**
+     * Creates a new {@code JimmyTimmy} application instance.
+     * Attempts to load previously saved tasks from the given file path.
+     * If loading fails, initializes with an empty task list.
+     *
+     * @param filePath the file path to load and save tasks
+     */
     public JimmyTimmy(String filePath) {
         ui = new Ui();
         storage = new Storage(filePath);
@@ -28,6 +39,12 @@ public class JimmyTimmy {
         }
     }
 
+    /**
+     * Runs the main application loop.
+     * Continuously reads user input, executes commands,
+     * updates the task list, and displays results until
+     * the user issues an exit command.
+     */
     public void run() {
         ui.showWelcome();
         boolean isExit = false;
@@ -82,6 +99,12 @@ public class JimmyTimmy {
         }
     }
 
+    /**
+     * The entry point for the application.
+     * Creates a new (@code JimmyTimmy) instance with default save file
+     * and starts program loop.
+     * @param args
+     */
     public static void main(String[] args) {
         new JimmyTimmy("data/jimmyTimmy.txt").run();
     }
