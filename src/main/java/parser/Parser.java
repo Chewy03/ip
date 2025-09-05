@@ -86,7 +86,7 @@ public class Parser {
      * @param command the user input
      * @return {@code true} if the command is "bye", ignoring case
      */
-    public static boolean isExit(String command) {
+    public static boolean isBye(String command) {
         return command.equalsIgnoreCase("bye");
     }
 
