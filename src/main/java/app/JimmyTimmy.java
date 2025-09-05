@@ -30,15 +30,15 @@ public class JimmyTimmy {
 
     public void run() {
         ui.showWelcome();
-        boolean isExit = false;
+        boolean isBye = false;
 
-        while (!isExit) {
+        while (!isBye) {
             try {
                 String input = ui.readCommand();
                 ui.showLine();
 
-                if (Parser.isExit(input)) {
-                    isExit = true;
+                if (Parser.isBye(input)) {
+                    isBye = true;
                     ui.showGoodbye();
                 } else if (Parser.isList(input)) {
                     tasks.printTasks(ui);
