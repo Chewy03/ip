@@ -19,6 +19,7 @@ public class JimmyTimmy {
     private Storage storage;
     private TaskList tasks;
     private Ui ui;
+    private String filePath;
 
     /**
      * Creates a new {@code JimmyTimmy} application instance.
@@ -28,7 +29,15 @@ public class JimmyTimmy {
      * @param filePath the file path to load and save tasks
      */
     public JimmyTimmy(String filePath) {
-        ui = new Ui();
+        this.filePath = filePath;
+        this.ui = new Ui();
+    }
+
+    /**
+     * Initializes storage and tasks from file.
+     * Must be called before run() or getResponse().
+     */
+    public void init() {
         storage = new Storage(filePath);
         try {
             ArrayList<Task> loadedTasks = storage.load();
@@ -100,12 +109,53 @@ public class JimmyTimmy {
     }
 
     /**
+     * Generates a response for the user's chat message.
+     */
+    public String getResponse(String input) {
+        try {
+            if (Parser.isList(input)) {
+                return tasks.toString();
+            } else if (input.equals("start")) {
+                return "Hello! I am JimmyTimmy!\nHow may I help you today?";
+            } else if (input.startsWith("mark")) {
+                int index = Parser.parseIndex(input);
+                tasks.markTask(index);
+                storage.save(tasks.getTasks());
+                return "Marked as done:\n" + tasks.getTask(index);
+            } else if (input.startsWith("unmark")) {
+                int index = Parser.parseIndex(input);
+                tasks.unmarkTask(index);
+                storage.save(tasks.getTasks());
+                return "Marked as not done:\n" + tasks.getTask(index);
+            } else if (input.startsWith("delete")) {
+                int index = Parser.parseIndex(input);
+                Task removed = tasks.deleteTask(index);
+                storage.save(tasks.getTasks());
+                return "Removed:\n" + removed + "\nNow you have " + tasks.size() + " tasks.";
+            } else if (input.startsWith("find")) {
+                String keyword = input.substring(4).trim();
+                ArrayList<Task> results = tasks.findTasks(keyword);
+                return results.toString();
+            } else {
+                Task task = Parser.parseTask(input);
+                tasks.addTask(task);
+                storage.save(tasks.getTasks());
+                return "Added task:\n" + task + "\nNow you have " + tasks.size() + " tasks.";
+            }
+        } catch (JimmyTimmyException | IOException e) {
+            return "Error: " + e.getMessage();
+        }
+    }
+
+    /**
      * The entry point for the application.
      * Creates a new (@code JimmyTimmy) instance with default save file
      * and starts program loop.
      * @param args
      */
     public static void main(String[] args) {
-        new JimmyTimmy("data/jimmyTimmy.txt").run();
+        JimmyTimmy app = new JimmyTimmy("data/jimmyTimmy.txt");
+        app.init();
+        app.run();
     }
 }

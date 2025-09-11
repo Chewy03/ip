@@ -129,6 +129,18 @@ public class TaskList {
         return matches;
     }
 
+    @Override
+    public String toString() {
+        if (tasks.isEmpty()) {
+            return "Your task list is empty!";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < tasks.size(); i++) {
+            sb.append(i + 1).append(". ").append(tasks.get(i)).append("\n");
+        }
+        return sb.toString();
+    }
+
     /**
      * Returns the number of tasks in the list.
      *
