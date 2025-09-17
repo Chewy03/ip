@@ -44,6 +44,8 @@ public class Storage {
      * @throws IOException if the file cannot be created
      */
     private void checkFile() throws IOException {
+        assert file != null : "File object must not be null";
+        
         if (!file.exists()) {
             file.getParentFile().mkdirs();
             file.createNewFile();
@@ -61,6 +63,8 @@ public class Storage {
     public ArrayList<Task> load() throws IOException {
         checkFile();
         ArrayList<Task> tasks = new ArrayList<>();
+        assert tasks != null : "Tasks list should always be initialized";
+
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
