@@ -34,9 +34,6 @@ public class Parser {
      * @throws JimmyTimmyException if the command is invalid, incomplete, or has incorrect date/time format
      */
     public static Task parseTask(String fullCommand) throws JimmyTimmyException {
-        assert fullCommand != null : "Command must not be null";
-        assert !fullCommand.trim().isEmpty() : "Command must not be empty";
-
         String trimmed = fullCommand.trim();
         try {
             if (trimmed.startsWith("todo")) {
@@ -76,10 +73,6 @@ public class Parser {
      * @throws JimmyTimmyException if the index is missing or not a valid integer
      */
     public static int parseIndex(String command) throws JimmyTimmyException {
-        assert command != null : "Command cannot be null";
-        String[] parts = command.split(" ");
-        assert parts.length >= 2 : "Command must contain at least 2 parts";
-
         try {
             return Integer.parseInt(command.split(" ")[1].trim()) - 1;
         } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {

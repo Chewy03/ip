@@ -29,8 +29,6 @@ public class JimmyTimmy {
      * @param filePath the file path to load and save tasks
      */
     public JimmyTimmy(String filePath) {
-        assert filePath != null && !filePath.trim().isEmpty() : "File path cannot be null or empty";
-
         this.filePath = filePath;
         this.ui = new Ui();
     }
@@ -40,9 +38,7 @@ public class JimmyTimmy {
      * Must be called before run() or getResponse().
      */
     public void init() {
-        assert filePath != null : "File path must not be null before init";
         storage = new Storage(filePath);
-        
         try {
             ArrayList<Task> loadedTasks = storage.load();
             tasks = new TaskList(loadedTasks);

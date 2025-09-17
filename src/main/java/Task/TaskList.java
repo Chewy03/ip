@@ -36,8 +36,6 @@ public class TaskList {
      * @param task the task to add
      */
     public void addTask(Task task) {
-        assert task != null : "Task cannot be null";
-        
         tasks.add(task);
     }
 
@@ -49,9 +47,6 @@ public class TaskList {
      * @throws JimmyTimmyException if the index is invalid
      */
     public Task deleteTask(int index) throws JimmyTimmyException {
-        assert index >= 0 : "Index must not be negative";
-        assert index < tasks.size() : "Index must be within task list size";
-
         if (index < 0 || index >= tasks.size()) {
             throw new JimmyTimmyException("Task number does not exist!");
         }
@@ -66,9 +61,6 @@ public class TaskList {
      * @throws JimmyTimmyException if the index is invalid
      */
     public Task getTask(int index) throws JimmyTimmyException {
-        assert index >= 0 : "Index must not be negative";
-        assert index < tasks.size() : "Index must be within task list size";
-
         if (index < 0 || index >= tasks.size()) {
             throw new JimmyTimmyException("Task number does not exist!");
         }
