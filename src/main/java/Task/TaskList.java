@@ -43,6 +43,21 @@ public class TaskList {
     }
 
     /**
+     * Adds a task at a specific index in the list.
+     * Useful for undoing deletions.
+     *
+     * @param index the index at which to insert the task
+     * @param task  the task to insert
+     * @throws IndexOutOfBoundsException if the index is invalid
+     */
+    public void addTaskAt(int index, Task task) {
+        if (index < 0 || index > tasks.size()) {
+            throw new IndexOutOfBoundsException("Invalid index for adding task.");
+        }
+        tasks.add(index, task);
+    }
+
+    /**
      * Deletes a task at the specified index.
      *
      * @param index the index of the task to remove

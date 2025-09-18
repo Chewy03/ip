@@ -11,7 +11,7 @@ import java.io.IOException;
 /**
  * Command to add a new task to the task list.
  */
-public class AddCommand implements Command {
+public class AddCommand implements UndoableCommand {
     private final Task task;
 
     public AddCommand(Task task) {
@@ -24,5 +24,12 @@ public class AddCommand implements Command {
         storage.save(tasks.getTasks());
         return "Got it. I've added this task:\n  " + task +
                 "\nNow you have " + tasks.size() + " tasks in the list.";
+    }
+
+    @Override
+    public void undo(TaskList tasks, Ui ui, Storage storage) throws JimmyTimmyException, IOException {
+        tasks.deleteTask(tasks.getTasks().indexOf(task));
+        storage.save(tasks.getTasks());
+        ui.showMessage("Undid adding task: " + task);
     }
 }

@@ -1,11 +1,6 @@
 package parser;
 
-import command.Command;
-import command.ExitCommand;
-import command.AddCommand;
-import command.DeleteCommand;
-import command.ListCommand;
-import command.MarkCommand;
+import command.*;
 import error.JimmyTimmyException;
 import storage.Storage;
 import task.Deadline;
@@ -18,6 +13,7 @@ import ui.Ui;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Stack;
 
 /**
  * Parses raw user input into executable {@link Command} objects.
@@ -39,11 +35,13 @@ public class Parser {
     private static final String CMD_TODO = "todo";
     private static final String CMD_DEADLINE = "deadline";
     private static final String CMD_EVENT = "event";
+    private static final String CMD_UNDO = "undo";
+    private static final String CMD_REDO = "redo";
     private static final String CMD_BYE = "bye";
 
-    /** Formatter for parsing date/time strings into {@link LocalDateTime} objects. */
-    private static final DateTimeFormatter DATE_FORMAT =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    /** Formatter for parsing date/time strings into {@link java.time.LocalDateTime} objects. */
+    private static final java.time.format.DateTimeFormatter DATE_FORMAT =
+            java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     /**
      * Parses a full user command string and returns the corresponding {@link Command}.
@@ -53,11 +51,11 @@ public class Parser {
      * @throws JimmyTimmyException if the command is unrecognized, arguments are missing,
      *                             or a number/date is incorrectly formatted
      */
-    public static Command parse(String fullCommand) throws JimmyTimmyException {
+    public static Command parse(String fullCommand,
+                                Stack<UndoableCommand> undoStack,
+                                Stack<UndoableCommand> redoStack) throws JimmyTimmyException {
         String trimmed = fullCommand.trim();
-        if (trimmed.isEmpty()) {
-            throw new JimmyTimmyException("No command entered.");
-        }
+        if (trimmed.isEmpty()) throw new JimmyTimmyException("No command entered.");
 
         String[] parts = trimmed.split(" ", 2);
         String commandWord = parts[0];
@@ -82,13 +80,17 @@ public class Parser {
                 case CMD_EVENT:
                     return new AddCommand(parseTask(commandWord, args));
 
+                case CMD_UNDO:
+                    return new UndoCommand(undoStack, redoStack);
+
+                case CMD_REDO:
+                    return new RedoCommand(undoStack, redoStack);
+
                 case CMD_BYE:
                     return new ExitCommand();
 
                 default:
-                    throw new JimmyTimmyException(
-                            "OOPS!!! I'm sorry, but I don't know what that means :-("
-                    );
+                    throw new JimmyTimmyException("OOPS!!! I'm sorry, but I don't know what that means :-(");
             }
         } catch (NumberFormatException e) {
             throw new JimmyTimmyException("Task number must be a valid integer.");
@@ -101,7 +103,7 @@ public class Parser {
      * Parses arguments into a specific type of {@link Task}.
      *
      * @param commandWord the type of task to create ({@code todo}, {@code deadline}, or {@code event})
-     * @param args the raw arguments string following the command word
+     * @param args        the raw arguments string following the command word
      * @return a newly constructed {@code Task}
      * @throws JimmyTimmyException if arguments are missing or incorrectly formatted
      */
@@ -118,7 +120,7 @@ public class Parser {
                 if (deadlineParts.length < 2) {
                     throw new JimmyTimmyException("The deadline command requires a description and /by date.");
                 }
-                LocalDateTime by = LocalDateTime.parse(deadlineParts[1].trim(), DATE_FORMAT);
+                java.time.LocalDateTime by = java.time.LocalDateTime.parse(deadlineParts[1].trim(), DATE_FORMAT);
                 return new Deadline(deadlineParts[0].trim(), by);
 
             case CMD_EVENT:
@@ -130,8 +132,8 @@ public class Parser {
                 if (eventToSplit.length < 2) {
                     throw new JimmyTimmyException("The event command requires a /to date.");
                 }
-                LocalDateTime start = LocalDateTime.parse(eventToSplit[0].trim(), DATE_FORMAT);
-                LocalDateTime end = LocalDateTime.parse(eventToSplit[1].trim(), DATE_FORMAT);
+                java.time.LocalDateTime start = java.time.LocalDateTime.parse(eventToSplit[0].trim(), DATE_FORMAT);
+                java.time.LocalDateTime end = java.time.LocalDateTime.parse(eventToSplit[1].trim(), DATE_FORMAT);
                 return new Event(eventFromSplit[0].trim(), start, end);
 
             default:

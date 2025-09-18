@@ -1,6 +1,9 @@
 package app;
 
 import command.Command;
+import command.RedoCommand;
+import command.UndoCommand;
+import command.UndoableCommand;
 import parser.Parser;
 import task.Task;
 import task.TaskList;
@@ -10,6 +13,8 @@ import ui.Ui;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Stack;
+
 /**
  * The {@code JimmyTimmy} class represents the main application that manages tasks through
  * user commands. It handles reading input, updating the task list,
@@ -21,6 +26,9 @@ public class JimmyTimmy {
     private TaskList tasks;
     private Ui ui;
     private String filePath;
+
+    private Stack<UndoableCommand> undoStack = new Stack<>();
+    private Stack<UndoableCommand> redoStack = new Stack<>();
 
     /**
      * Creates a new {@code JimmyTimmy} application instance.
@@ -66,21 +74,22 @@ public class JimmyTimmy {
         while (!isExit) {
             try {
                 String input = ui.readCommand();
-                if (input.isBlank()) {
-                    continue;
-                }
+                if (input.isBlank()) continue;
                 ui.showLine();
 
-                Command command = Parser.parse(input);
+                Command command = Parser.parse(input, undoStack, redoStack);
                 String result = command.execute(tasks, ui, storage);
                 ui.showMessage(result);
 
+                if (command instanceof UndoableCommand && !(command instanceof UndoCommand) && !(command instanceof RedoCommand)) {
+                    undoStack.push((UndoableCommand) command);
+                    redoStack.clear();
+                }
+
                 isExit = command.isExit();
 
-            } catch (JimmyTimmyException e) {
+            } catch (JimmyTimmyException | IOException e) {
                 ui.showError(e.getMessage());
-            } catch (IOException e) {
-                ui.showError("Failed to save tasks: " + e.getMessage());
             } finally {
                 ui.showLine();
             }
@@ -93,8 +102,16 @@ public class JimmyTimmy {
      */
     public String getResponse(String input) {
         try {
-            Command command = Parser.parse(input);
-            return command.execute(tasks, ui, storage);
+            Command command = Parser.parse(input, undoStack, redoStack);
+            String result = command.execute(tasks, ui, storage);
+
+            if (command instanceof UndoableCommand && !(command instanceof UndoCommand) && !(command instanceof RedoCommand)) {
+                undoStack.push((UndoableCommand) command);
+                redoStack.clear();
+            }
+
+            return result;
+
         } catch (JimmyTimmyException | IOException e) {
             return "Error: " + e.getMessage();
         }

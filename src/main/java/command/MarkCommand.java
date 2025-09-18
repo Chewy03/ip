@@ -11,9 +11,15 @@ import java.io.IOException;
 /**
  * Command to mark or unmark a task.
  */
-public class MarkCommand implements Command {
+public class MarkCommand implements UndoableCommand {
     private final int index;
     private final boolean isMark;
+
+    /**
+     * Stores the previous state of the task (marked/unmarked)
+     * before execution so we can undo later.
+     */
+    private boolean previousState;
 
     public MarkCommand(int index, boolean isMark) {
         this.index = index;
@@ -23,7 +29,9 @@ public class MarkCommand implements Command {
     @Override
     public String execute(TaskList tasks, Ui ui, Storage storage)
             throws IOException, JimmyTimmyException {
-        Task task;
+        Task task = tasks.getTask(index);
+        previousState = task.isDone();
+
         if (isMark) {
             task = tasks.markTask(index);
             storage.save(tasks.getTasks());
@@ -33,5 +41,19 @@ public class MarkCommand implements Command {
             storage.save(tasks.getTasks());
             return "OK, I've marked this task as not done yet:\n  " + task;
         }
+    }
+
+    @Override
+    public void undo(TaskList tasks, Ui ui, Storage storage) throws JimmyTimmyException, IOException {
+        Task task = tasks.getTask(index);
+
+        if (previousState) {
+            tasks.markTask(index);
+        } else {
+            tasks.unmarkTask(index);
+        }
+
+        storage.save(tasks.getTasks());
+        ui.showMessage("Undo successful: Restored previous state of task:\n  " + task);
     }
 }
