@@ -26,6 +26,6 @@ public class ToDo extends Task {
      */
     @Override
     public String toString() {
-        return "[T]" + super.toString();
+        return "\uD83D\uDED2" + super.toString();
     }
 }

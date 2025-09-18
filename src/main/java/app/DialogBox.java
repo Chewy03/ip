@@ -1,5 +1,6 @@
 package app;
 
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -14,22 +15,22 @@ public class DialogBox extends HBox {
     private Label text;
     private ImageView displayPicture;
 
-    public DialogBox(String s, Image i) {
+    public DialogBox(String s, Image i, double imageSize) {
         text = new Label(s);
-        displayPicture = new ImageView(i);
-
-        // Styling
         text.setWrapText(true);
-        displayPicture.setFitWidth(100.0);
-        displayPicture.setFitHeight(100.0);
+        text.getStyleClass().add("dialog-bubble");
+
+        displayPicture = new ImageView(i);
+        displayPicture.setFitWidth(imageSize);
+        displayPicture.setFitHeight(imageSize);
+
         this.setAlignment(Pos.TOP_RIGHT);
+        this.setSpacing(10);
+        this.setPadding(new Insets(5));
 
         this.getChildren().addAll(text, displayPicture);
     }
 
-    /**
-     * Flips the dialog box so the image is on the left (for JimmyTimmy messages)
-     */
     private void flip() {
         this.setAlignment(Pos.TOP_LEFT);
         ObservableList<Node> tmp = FXCollections.observableArrayList(this.getChildren());
@@ -37,12 +38,15 @@ public class DialogBox extends HBox {
         this.getChildren().setAll(tmp);
     }
 
-    public static DialogBox getUserDialog(String s, Image i) {
-        return new DialogBox(s, i);
+    public static DialogBox getUserDialog(String s, Image i, double imageSize) {
+        DialogBox db = new DialogBox(s, i, imageSize);
+        db.text.getStyleClass().add("user-bubble");
+        return db;
     }
 
-    public static DialogBox getJTDialog(String s, Image i) {
-        var db = new DialogBox(s, i);
+    public static DialogBox getJTDialog(String s, Image i, double imageSize) {
+        DialogBox db = new DialogBox(s, i, imageSize);
+        db.text.getStyleClass().add("jt-bubble");
         db.flip();
         return db;
     }

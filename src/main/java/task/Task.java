@@ -35,7 +35,7 @@ public class Task {
      * @return {@code "X"} if the task is done, otherwise a space {@code " "}
      */
     public String getMark() {
-        return isDone ? "X" : " ";
+        return isDone ? "✔\uFE0F" : " ";
     }
 
     /**

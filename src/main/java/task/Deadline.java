@@ -48,6 +48,6 @@ public class Deadline extends Task {
      */
     @Override
     public String toString() {
-        return "[D]" + super.toString() + " (by: " + dueDate.format(DISPLAY_FORMAT) + ")";
+        return "\uD83D\uDD57" + super.toString() + " (by: " + dueDate.format(DISPLAY_FORMAT) + ")";
     }
 }

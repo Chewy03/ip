@@ -35,11 +35,11 @@ public class MarkCommand implements UndoableCommand {
         if (isMark) {
             task = tasks.markTask(index);
             storage.save(tasks.getTasks());
-            return "Nice! I've marked this task as done:\n  " + task;
+            return "Nice! I've checked this item out of your cart:\n  " + task;
         } else {
             task = tasks.unmarkTask(index);
             storage.save(tasks.getTasks());
-            return "OK, I've marked this task as not done yet:\n  " + task;
+            return "Aw, I've returned this item to the cart:\n  " + task;
         }
     }
 
@@ -54,6 +54,6 @@ public class MarkCommand implements UndoableCommand {
         }
 
         storage.save(tasks.getTasks());
-        ui.showMessage("Undo successful: Restored previous state of task:\n  " + task);
+        ui.showMessage("I've put the item back where it belonged\n  " + task);
     }
 }

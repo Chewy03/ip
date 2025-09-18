@@ -22,14 +22,14 @@ public class AddCommand implements UndoableCommand {
     public String execute(TaskList tasks, Ui ui, Storage storage) throws IOException {
         tasks.addTask(task);
         storage.save(tasks.getTasks());
-        return "Got it. I've added this task:\n  " + task +
-                "\nNow you have " + tasks.size() + " tasks in the list.";
+        return "I've added this item:\n  " + task +
+                "\nNow you have " + tasks.size() + " items in your cart.";
     }
 
     @Override
     public void undo(TaskList tasks, Ui ui, Storage storage) throws JimmyTimmyException, IOException {
         tasks.deleteTask(tasks.getTasks().indexOf(task));
         storage.save(tasks.getTasks());
-        ui.showMessage("Undid adding task: " + task);
+        ui.showMessage("Returned to shelves: " + task);
     }
 }
