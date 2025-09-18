@@ -21,12 +21,20 @@ import task.ToDo;
  * JimmyTimmy application across program runs.
  */
 public class Storage {
-
     /** The file where tasks are stored. */
     private final File file;
 
     /** Date-time formatter used for deadlines and event times. */
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+
+    /** Task type identifier for {@link ToDo}. */
+    private static final String TYPE_TODO = "T";
+
+    /** Task type identifier for {@link Deadline}. */
+    private static final String TYPE_DEADLINE = "D";
+
+    /** Task type identifier for {@link Event}. */
+    private static final String TYPE_EVENT = "E";
 
     /**
      * Constructs a new {@code Storage} object for a specific file path.
@@ -45,7 +53,7 @@ public class Storage {
      */
     private void checkFile() throws IOException {
         assert file != null : "File object must not be null";
-        
+
         if (!file.exists()) {
             file.getParentFile().mkdirs();
             file.createNewFile();
@@ -53,54 +61,76 @@ public class Storage {
     }
 
     /**
-     * Loads tasks from the storage file.
-     * Each line is parsed into a {@link ToDo}, {@link Deadline}, or {@link Event}.
-     * Corrupted or unrecognized lines are skipped with a warning.
+     * Parses a single line from the storage file into a {@link Task} object.
+     * <p>
+     * The expected format for each line is:
+     * <ul>
+     *     <li>ToDo: {@code T | isDone | description}</li>
+     *     <li>Deadline: {@code D | isDone | description | yyyy-MM-dd HHmm}</li>
+     *     <li>Event: {@code E | isDone | description | yyyy-MM-dd HHmm | yyyy-MM-dd HHmm}</li>
+     * </ul>
+     * </p>
      *
-     * @return a list of {@link Task} objects loaded from the file
-     * @throws IOException if the file cannot be read
+     * @param line the line from the storage file representing a task
+     * @return a {@code Task} object corresponding to the parsed line
+     * @throws Exception if the line is corrupted, contains an unknown type,
+     *                   or dates are incorrectly formatted
+     */
+    private Task parseLine(String line) throws Exception {
+        String[] data = line.split(" \\| ");
+        String type = data[0].trim();
+        boolean isDone = "1".equals(data[1].trim());
+        String description = data[2].trim();
+
+        switch (type) {
+            case TYPE_TODO:
+                ToDo todo = new ToDo(description);
+                if (isDone) todo.markAsDone();
+                return todo;
+            case TYPE_DEADLINE:
+                LocalDateTime by = LocalDateTime.parse(data[3].trim(), FORMATTER);
+                Deadline deadline = new Deadline(description, by);
+                if (isDone) deadline.markAsDone();
+                return deadline;
+            case TYPE_EVENT:
+                LocalDateTime start = LocalDateTime.parse(data[3].trim(), FORMATTER);
+                LocalDateTime end = LocalDateTime.parse(data[4].trim(), FORMATTER);
+                Event event = new Event(description, start, end);
+                if (isDone) event.markAsDone();
+                return event;
+            default:
+                throw new IOException("Unknown task type: " + type);
+        }
+    }
+
+    /**
+     * Loads all tasks from the storage file.
+     * <p>
+     * Each line in the file is parsed using {@link #parseLine(String)},
+     * which converts a plain-text representation into a {@link Task} object.
+     * Corrupted lines or lines with unknown task types are skipped, with a warning printed
+     * to the console.
+     * </p>
+     *
+     * @return an {@link ArrayList} of {@link Task} objects read from the file
+     * @throws IOException if the file cannot be read or created
      */
     public ArrayList<Task> load() throws IOException {
         checkFile();
         ArrayList<Task> tasks = new ArrayList<>();
-        assert tasks != null : "Tasks list should always be initialized";
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 try {
-                    String[] data = line.split(" \\| ");
-                    String type = data[0];
-                    boolean isDone = data[1].equals("1");
-                    String description = data[2];
-
-                    switch (type) {
-                        case "T":
-                            ToDo todo = new ToDo(description);
-                            if (isDone) todo.markAsDone();
-                            tasks.add(todo);
-                            break;
-                        case "D":
-                            LocalDateTime by = LocalDateTime.parse(data[3], FORMATTER);
-                            Deadline deadline = new Deadline(description, by);
-                            if (isDone) deadline.markAsDone();
-                            tasks.add(deadline);
-                            break;
-                        case "E":
-                            LocalDateTime start = LocalDateTime.parse(data[3], FORMATTER);
-                            LocalDateTime end = LocalDateTime.parse(data[4], FORMATTER);
-                            Event event = new Event(description, start, end);
-                            if (isDone) event.markAsDone();
-                            tasks.add(event);
-                            break;
-                        default:
-                            System.out.println("Skipping invalid line: " + line);
-                    }
+                    Task task = parseLine(line);
+                    tasks.add(task);
                 } catch (Exception e) {
                     System.out.println("Skipping corrupted line: " + line);
                 }
             }
         }
+
         return tasks;
     }
 

@@ -1,109 +1,156 @@
 package parser;
 
+import command.Command;
+import command.ExitCommand;
+import command.AddCommand;
+import command.DeleteCommand;
+import command.ListCommand;
+import command.MarkCommand;
 import error.JimmyTimmyException;
-import task.Task;
-import task.ToDo;
+import storage.Storage;
 import task.Deadline;
 import task.Event;
+import task.Task;
+import task.TaskList;
+import task.ToDo;
+import ui.Ui;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 /**
- * The {@code Parser} class is responsible for interpreting and converting
- * raw user input into structured commands or {@link Task} objects.
+ * Parses raw user input into executable {@link Command} objects.
+ * <p>
+ * The {@code Parser} class is responsible only for interpreting
+ * user input strings and translating them into corresponding
+ * commands. It does not execute commands directly; instead,
+ * execution is delegated to the {@link Command#execute} method
+ * of the returned object.
+ * </p>
  */
 public class Parser {
 
-    /** Date-time formatter used to parse deadlines and event times. */
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+    // === Command keywords ===
+    private static final String CMD_LIST = "list";
+    private static final String CMD_MARK = "mark";
+    private static final String CMD_UNMARK = "unmark";
+    private static final String CMD_DELETE = "delete";
+    private static final String CMD_TODO = "todo";
+    private static final String CMD_DEADLINE = "deadline";
+    private static final String CMD_EVENT = "event";
+    private static final String CMD_BYE = "bye";
+
+    /** Formatter for parsing date/time strings into {@link LocalDateTime} objects. */
+    private static final DateTimeFormatter DATE_FORMAT =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     /**
-     * Parses a full command string into a specific {@link Task}.
+     * Parses a full user command string and returns the corresponding {@link Command}.
      *
-     * <p>Supported commands:</p>
-     * <ul>
-     *     <li>{@code todo description}</li>
-     *     <li>{@code deadline description /by yyyy-MM-dd HHmm}</li>
-     *     <li>{@code event description /from yyyy-MM-dd HHmm /to yyyy-MM-dd HHmm}</li>
-     * </ul>
-     *
-     * @param fullCommand the raw user command string
-     * @return a {@link Task} object corresponding to the parsed command
-     * @throws JimmyTimmyException if the command is invalid, incomplete, or has incorrect date/time format
+     * @param fullCommand the full input line entered by the user
+     * @return a {@code Command} representing the parsed user instruction
+     * @throws JimmyTimmyException if the command is unrecognized, arguments are missing,
+     *                             or a number/date is incorrectly formatted
      */
-    public static Task parseTask(String fullCommand) throws JimmyTimmyException {
-        assert fullCommand != null : "Command must not be null";
-        assert !fullCommand.trim().isEmpty() : "Command must not be empty";
-
+    public static Command parse(String fullCommand) throws JimmyTimmyException {
         String trimmed = fullCommand.trim();
+        if (trimmed.isEmpty()) {
+            throw new JimmyTimmyException("No command entered.");
+        }
+
+        String[] parts = trimmed.split(" ", 2);
+        String commandWord = parts[0];
+        String args = parts.length > 1 ? parts[1].trim() : "";
+
         try {
-            if (trimmed.startsWith("todo")) {
-                String desc = trimmed.substring(4).trim();
-                if (desc.isEmpty()) throw new JimmyTimmyException("The description of a todo cannot be empty.");
-                return new ToDo(desc);
+            switch (commandWord) {
+                case CMD_LIST:
+                    return new ListCommand();
 
-            } else if (trimmed.startsWith("deadline")) {
-                String[] parts = trimmed.substring(8).split(" /by ", 2);
-                if (parts.length < 2) throw new JimmyTimmyException("Deadline must have a description and a /by time.");
-                String desc = parts[0].trim();
-                LocalDateTime by = LocalDateTime.parse(parts[1].trim(), FORMATTER);
-                return new Deadline(desc, by);
+                case CMD_MARK:
+                    return new MarkCommand(parseIndex(args), true);
 
-            } else if (trimmed.startsWith("event")) {
-                String[] parts = trimmed.substring(5).split(" /from | /to ");
-                if (parts.length < 3) throw new JimmyTimmyException("Event must have description, /from, and /to.");
-                String desc = parts[0].trim();
-                LocalDateTime start = LocalDateTime.parse(parts[1].trim(), FORMATTER);
-                LocalDateTime end = LocalDateTime.parse(parts[2].trim(), FORMATTER);
-                return new Event(desc, start, end);
+                case CMD_UNMARK:
+                    return new MarkCommand(parseIndex(args), false);
 
-            } else {
-                throw new JimmyTimmyException("I don’t know what that means.");
+                case CMD_DELETE:
+                    return new DeleteCommand(parseIndex(args));
+
+                case CMD_TODO:
+                case CMD_DEADLINE:
+                case CMD_EVENT:
+                    return new AddCommand(parseTask(commandWord, args));
+
+                case CMD_BYE:
+                    return new ExitCommand();
+
+                default:
+                    throw new JimmyTimmyException(
+                            "OOPS!!! I'm sorry, but I don't know what that means :-("
+                    );
             }
+        } catch (NumberFormatException e) {
+            throw new JimmyTimmyException("Task number must be a valid integer.");
         } catch (DateTimeParseException e) {
-            throw new JimmyTimmyException("Invalid date/time format. Use yyyy-MM-dd HHmm");
+            throw new JimmyTimmyException("Invalid date/time format. Use yyyy-MM-dd HH:mm");
         }
     }
 
     /**
-     * Extracts and parses a task index from a command string.
-     * <p>Example: {@code "mark 2"} → returns {@code 1} (0-based index).</p>
+     * Parses arguments into a specific type of {@link Task}.
      *
-     * @param command the command string containing a task index
-     * @return the parsed task index (0-based)
-     * @throws JimmyTimmyException if the index is missing or not a valid integer
+     * @param commandWord the type of task to create ({@code todo}, {@code deadline}, or {@code event})
+     * @param args the raw arguments string following the command word
+     * @return a newly constructed {@code Task}
+     * @throws JimmyTimmyException if arguments are missing or incorrectly formatted
      */
-    public static int parseIndex(String command) throws JimmyTimmyException {
-        assert command != null : "Command cannot be null";
-        String[] parts = command.split(" ");
-        assert parts.length >= 2 : "Command must contain at least 2 parts";
+    private static Task parseTask(String commandWord, String args) throws JimmyTimmyException {
+        switch (commandWord) {
+            case CMD_TODO:
+                if (args.isBlank()) {
+                    throw new JimmyTimmyException("The description of a todo cannot be empty.");
+                }
+                return new ToDo(args);
 
-        try {
-            return Integer.parseInt(command.split(" ")[1].trim()) - 1;
-        } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-            throw new JimmyTimmyException("Please enter a valid task number.");
+            case CMD_DEADLINE:
+                String[] deadlineParts = args.split(" /by ", 2);
+                if (deadlineParts.length < 2) {
+                    throw new JimmyTimmyException("The deadline command requires a description and /by date.");
+                }
+                LocalDateTime by = LocalDateTime.parse(deadlineParts[1].trim(), DATE_FORMAT);
+                return new Deadline(deadlineParts[0].trim(), by);
+
+            case CMD_EVENT:
+                String[] eventFromSplit = args.split(" /from ", 2);
+                if (eventFromSplit.length < 2) {
+                    throw new JimmyTimmyException("The event command requires a /from date.");
+                }
+                String[] eventToSplit = eventFromSplit[1].split(" /to ", 2);
+                if (eventToSplit.length < 2) {
+                    throw new JimmyTimmyException("The event command requires a /to date.");
+                }
+                LocalDateTime start = LocalDateTime.parse(eventToSplit[0].trim(), DATE_FORMAT);
+                LocalDateTime end = LocalDateTime.parse(eventToSplit[1].trim(), DATE_FORMAT);
+                return new Event(eventFromSplit[0].trim(), start, end);
+
+            default:
+                throw new JimmyTimmyException("Unknown task type: " + commandWord);
         }
     }
 
     /**
-     * Determines if the given command is an exit command.
+     * Parses a task index string into an integer (0-based).
      *
-     * @param command the user input
-     * @return {@code true} if the command is "bye", ignoring case
+     * @param arg the argument string expected to contain a number
+     * @return the parsed index
+     * @throws NumberFormatException if the argument is not a valid integer
+     * @throws JimmyTimmyException   if the argument is blank
      */
-    public static boolean isBye(String command) {
-        return command.equalsIgnoreCase("bye");
-    }
-
-    /**
-     * Determines if the given command is a list command.
-     *
-     * @param command the user input
-     * @return {@code true} if the command is "list", ignoring case
-     */
-    public static boolean isList(String command) {
-        return command.equalsIgnoreCase("list");
+    private static int parseIndex(String arg) throws JimmyTimmyException {
+        if (arg.isBlank()) {
+            throw new JimmyTimmyException("You must specify a task number.");
+        }
+        return Integer.parseInt(arg) - 1;
     }
 }

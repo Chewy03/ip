@@ -4,6 +4,7 @@ import error.JimmyTimmyException;
 import ui.Ui;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a collection of tasks in the JimmyTimmy application.
@@ -52,9 +53,7 @@ public class TaskList {
         assert index >= 0 : "Index must not be negative";
         assert index < tasks.size() : "Index must be within task list size";
 
-        if (index < 0 || index >= tasks.size()) {
-            throw new JimmyTimmyException("Task number does not exist!");
-        }
+        validateIndex(index);
         return tasks.remove(index);
     }
 
@@ -69,9 +68,7 @@ public class TaskList {
         assert index >= 0 : "Index must not be negative";
         assert index < tasks.size() : "Index must be within task list size";
 
-        if (index < 0 || index >= tasks.size()) {
-            throw new JimmyTimmyException("Task number does not exist!");
-        }
+        validateIndex(index);
         return tasks.get(index);
     }
 
@@ -81,18 +78,21 @@ public class TaskList {
      * @param index the index of the task to mark
      * @throws JimmyTimmyException if the index is invalid
      */
-    public void markTask(int index) throws JimmyTimmyException {
-        getTask(index).markAsDone();
+    public Task markTask(int index) throws JimmyTimmyException {
+        Task task = getTask(index);
+        task.markAsDone();
+        return task;
     }
-
     /**
      * Marks the task at the specified index as not done.
      *
      * @param index the index of the task to unmark
      * @throws JimmyTimmyException if the index is invalid
      */
-    public void unmarkTask(int index) throws JimmyTimmyException {
-        getTask(index).markAsNotDone();
+    public Task unmarkTask(int index) throws JimmyTimmyException {
+        Task task = getTask(index);
+        task.markAsNotDone();
+        return task;
     }
 
     /**
@@ -111,9 +111,6 @@ public class TaskList {
      * @throws JimmyTimmyException if the list is empty
      */
     public void printTasks(Ui ui) throws JimmyTimmyException {
-        if (tasks.isEmpty()) {
-            throw new JimmyTimmyException("Your list is empty!");
-        }
         ui.showTaskList(tasks);
     }
 
@@ -135,6 +132,18 @@ public class TaskList {
             }
         }
         return matches;
+    }
+
+    /**
+     * Validates that the index is within bounds for the task list.
+     *
+     * @param index the index to check
+     * @throws JimmyTimmyException if index is out of bounds
+     */
+    private void validateIndex(int index) throws JimmyTimmyException {
+        if (index < 0 || index >= tasks.size()) {
+            throw new JimmyTimmyException("Task number " + (index + 1) + " does not exist!");
+        }
     }
 
     @Override
