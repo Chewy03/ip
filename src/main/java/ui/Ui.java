@@ -1,6 +1,9 @@
 package ui;
 
+import error.JimmyTimmyException;
 import task.Task;
+import task.TaskList;
+
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -40,6 +43,33 @@ public class Ui {
      */
     public void showGoodbye() {
         System.out.println("Bye. Hope to see you again soon!");
+    }
+
+    /**
+     * Displays a generic message to the user.
+     *
+     * @param message the message to be displayed
+     */
+    public void showMessage(String message) {
+        System.out.println(message);
+    }
+
+    /**
+     * Displays all tasks in the given {@link TaskList}.
+     *
+     * @param tasks the list of tasks to display
+     */
+    public void showTasks(TaskList tasks) throws JimmyTimmyException {
+        if (tasks.isEmpty()) {
+            showMessage("Your task list is empty!");
+            return;
+        }
+
+        showMessage("Here are the tasks in your list:");
+        for (int i = 0; i < tasks.size(); i++) {
+            Task task = tasks.getTask(i);
+            System.out.println((i + 1) + ". " + task);
+        }
     }
 
     /**
@@ -115,11 +145,16 @@ public class Ui {
      * Displays all tasks in the task list.
      *
      * @param tasks the list of tasks to display
+     * @throws JimmyTimmyException if the list is empty
      */
-    public void showTaskList(ArrayList<Task> tasks) {
-        System.out.println("Here are the tasks in your list:");
-        for (int i = 0; i < tasks.size(); i++) {
-            System.out.println((i + 1) + ". " + tasks.get(i));
+    public void showTaskList(ArrayList<Task> tasks) throws JimmyTimmyException {
+        if (tasks.isEmpty()) {
+            throw new JimmyTimmyException("Your list is empty!");
+        } else {
+            System.out.println("Here are the tasks in your list:");
+            for (int i = 0; i < tasks.size(); i++) {
+                System.out.println((i + 1) + ". " + tasks.get(i));
+            }
         }
     }
 

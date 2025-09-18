@@ -70,18 +70,20 @@ public class Main extends Application {
         userInput.setOnAction((event) -> handleUserInput());
 
         dialogContainer.getChildren().add(
-                DialogBox.getJTDialog(jT.getResponse("start"), jTImage)
+                DialogBox.getJTDialog("Hello! I am JimmyTimmy!\nHow may I help you today?", jTImage)
         );
 
         sendButton.setOnMouseClicked((event) -> handleUserInput());
         userInput.setOnAction((event) -> handleUserInput());
 
         stage.setOnCloseRequest(event -> {
-            String byeMessage = jT.getResponse("bye"); // Generate goodbye text
+            String byeMessage = jT.getResponse("bye");
             dialogContainer.getChildren().add(
                     DialogBox.getJTDialog(byeMessage, jTImage)
             );
+            javafx.application.Platform.exit();
         });
+
     }
 
     /**
@@ -95,5 +97,8 @@ public class Main extends Application {
                 DialogBox.getJTDialog(jTText, jTImage)
         );
         userInput.clear();
+        if (userText.equalsIgnoreCase("bye")) {
+            javafx.application.Platform.exit();
+        }
     }
 }

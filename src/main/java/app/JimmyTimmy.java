@@ -1,9 +1,10 @@
 package app;
 
+import command.Command;
+import parser.Parser;
 import task.Task;
 import task.TaskList;
 import storage.Storage;
-import parser.Parser;
 import error.JimmyTimmyException;
 import ui.Ui;
 
@@ -42,7 +43,7 @@ public class JimmyTimmy {
     public void init() {
         assert filePath != null : "File path must not be null before init";
         storage = new Storage(filePath);
-        
+
         try {
             ArrayList<Task> loadedTasks = storage.load();
             tasks = new TaskList(loadedTasks);
@@ -60,47 +61,21 @@ public class JimmyTimmy {
      */
     public void run() {
         ui.showWelcome();
-        boolean isBye = false;
+        boolean isExit = false;
 
-        while (!isBye) {
+        while (!isExit) {
             try {
                 String input = ui.readCommand();
+                if (input.isBlank()) {
+                    continue;
+                }
                 ui.showLine();
 
-                if (Parser.isBye(input)) {
-                    isBye = true;
-                    ui.showGoodbye();
-                } else if (Parser.isList(input)) {
-                    tasks.printTasks(ui);
-                } else if (input.startsWith("mark")) {
-                    int index = Parser.parseIndex(input);
-                    tasks.markTask(index);
-                    storage.save(tasks.getTasks());
-                    ui.showTaskMarked(tasks.getTask(index));
-                } else if (input.startsWith("unmark")) {
-                    int index = Parser.parseIndex(input);
-                    tasks.unmarkTask(index);
-                    storage.save(tasks.getTasks());
-                    ui.showTaskUnmarked(tasks.getTask(index));
-                } else if (input.startsWith("delete")) {
-                    int index = Parser.parseIndex(input);
-                    Task removed = tasks.deleteTask(index);
-                    storage.save(tasks.getTasks());
-                    ui.showTaskRemoved(removed, tasks.size());
-                } else if (input.startsWith("find")) {
-                    String keyword = input.substring(4).trim();
-                    if (keyword.isEmpty()) {
-                        ui.showError("Please provide a keyword to search for.");
-                    } else {
-                        ArrayList<Task> results = tasks.findTasks(keyword);
-                        ui.showFoundTasks(results);
-                    }
-                } else {
-                    Task task = Parser.parseTask(input);
-                    tasks.addTask(task);
-                    storage.save(tasks.getTasks());
-                    ui.showTaskAdded(task, tasks.size());
-                }
+                Command command = Parser.parse(input);
+                String result = command.execute(tasks, ui, storage);
+                ui.showMessage(result);
+
+                isExit = command.isExit();
 
             } catch (JimmyTimmyException e) {
                 ui.showError(e.getMessage());
@@ -112,45 +87,18 @@ public class JimmyTimmy {
         }
     }
 
+
     /**
      * Generates a response for the user's chat message.
      */
     public String getResponse(String input) {
         try {
-            if (Parser.isList(input)) {
-                return tasks.toString();
-            } else if (input.equals("start")) {
-                return "Hello! I am JimmyTimmy!\nHow may I help you today?";
-            } else if (input.startsWith("mark")) {
-                int index = Parser.parseIndex(input);
-                tasks.markTask(index);
-                storage.save(tasks.getTasks());
-                return "Marked as done:\n" + tasks.getTask(index);
-            } else if (input.startsWith("unmark")) {
-                int index = Parser.parseIndex(input);
-                tasks.unmarkTask(index);
-                storage.save(tasks.getTasks());
-                return "Marked as not done:\n" + tasks.getTask(index);
-            } else if (input.startsWith("delete")) {
-                int index = Parser.parseIndex(input);
-                Task removed = tasks.deleteTask(index);
-                storage.save(tasks.getTasks());
-                return "Removed:\n" + removed + "\nNow you have " + tasks.size() + " tasks.";
-            } else if (input.startsWith("find")) {
-                String keyword = input.substring(4).trim();
-                ArrayList<Task> results = tasks.findTasks(keyword);
-                return results.toString();
-            } else {
-                Task task = Parser.parseTask(input);
-                tasks.addTask(task);
-                storage.save(tasks.getTasks());
-                return "Added task:\n" + task + "\nNow you have " + tasks.size() + " tasks.";
-            }
+            Command command = Parser.parse(input);
+            return command.execute(tasks, ui, storage);
         } catch (JimmyTimmyException | IOException e) {
             return "Error: " + e.getMessage();
         }
     }
-
     /**
      * The entry point for the application.
      * Creates a new (@code JimmyTimmy) instance with default save file
