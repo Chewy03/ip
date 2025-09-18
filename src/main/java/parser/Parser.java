@@ -23,6 +23,11 @@ import java.util.Stack;
  * commands. It does not execute commands directly; instead,
  * execution is delegated to the {@link Command#execute} method
  * of the returned object.
+ *
+ * Translates commands into Cartman-style shopping cart tasks:
+ * - Grocery items
+ * - Expiry dates
+ * - Promotional periods
  * </p>
  */
 public class Parser {
@@ -55,7 +60,7 @@ public class Parser {
                                 Stack<UndoableCommand> undoStack,
                                 Stack<UndoableCommand> redoStack) throws JimmyTimmyException {
         String trimmed = fullCommand.trim();
-        if (trimmed.isEmpty()) throw new JimmyTimmyException("No command entered.");
+        if (trimmed.isEmpty()) throw new JimmyTimmyException("Your cart is empty! Type something to add items.");
 
         String[] parts = trimmed.split(" ", 2);
         String commandWord = parts[0];
@@ -90,12 +95,13 @@ public class Parser {
                     return new ExitCommand();
 
                 default:
-                    throw new JimmyTimmyException("OOPS!!! I'm sorry, but I don't know what that means :-(");
+                    throw new JimmyTimmyException("Hmm… That item isn't in my database. Try a another!");
             }
         } catch (NumberFormatException e) {
-            throw new JimmyTimmyException("Task number must be a valid integer.");
+            throw new JimmyTimmyException("Item number must be a valid integer.");
         } catch (DateTimeParseException e) {
-            throw new JimmyTimmyException("Invalid date/time format. Use yyyy-MM-dd HH:mm");
+            throw new JimmyTimmyException("Invalid date/time. " +
+                    "Use yyyy-MM-dd HH:mm format for expiry dates or promotions.");
         }
     }
 
@@ -111,14 +117,14 @@ public class Parser {
         switch (commandWord) {
             case CMD_TODO:
                 if (args.isBlank()) {
-                    throw new JimmyTimmyException("The description of a todo cannot be empty.");
+                    throw new JimmyTimmyException("You need to specify a grocery item to add to the cart!");
                 }
                 return new ToDo(args);
 
             case CMD_DEADLINE:
                 String[] deadlineParts = args.split(" /by ", 2);
                 if (deadlineParts.length < 2) {
-                    throw new JimmyTimmyException("The deadline command requires a description and /by date.");
+                    throw new JimmyTimmyException("Expiry date requires a grocery item and /by date.");
                 }
                 java.time.LocalDateTime by = java.time.LocalDateTime.parse(deadlineParts[1].trim(), DATE_FORMAT);
                 return new Deadline(deadlineParts[0].trim(), by);
@@ -126,18 +132,18 @@ public class Parser {
             case CMD_EVENT:
                 String[] eventFromSplit = args.split(" /from ", 2);
                 if (eventFromSplit.length < 2) {
-                    throw new JimmyTimmyException("The event command requires a /from date.");
+                    throw new JimmyTimmyException("Promotional period requires a description and /from date.");
                 }
                 String[] eventToSplit = eventFromSplit[1].split(" /to ", 2);
                 if (eventToSplit.length < 2) {
-                    throw new JimmyTimmyException("The event command requires a /to date.");
+                    throw new JimmyTimmyException("Promotional period requires a /to date.");
                 }
                 java.time.LocalDateTime start = java.time.LocalDateTime.parse(eventToSplit[0].trim(), DATE_FORMAT);
                 java.time.LocalDateTime end = java.time.LocalDateTime.parse(eventToSplit[1].trim(), DATE_FORMAT);
                 return new Event(eventFromSplit[0].trim(), start, end);
 
             default:
-                throw new JimmyTimmyException("Unknown task type: " + commandWord);
+                throw new JimmyTimmyException("Sorry I don't recognise that type of item: " + commandWord);
         }
     }
 
@@ -151,7 +157,7 @@ public class Parser {
      */
     private static int parseIndex(String arg) throws JimmyTimmyException {
         if (arg.isBlank()) {
-            throw new JimmyTimmyException("You must specify a task number.");
+            throw new JimmyTimmyException("You need to specify the item number in your cart.");
         }
         return Integer.parseInt(arg) - 1;
     }

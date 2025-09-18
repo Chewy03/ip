@@ -24,14 +24,14 @@ public class DeleteCommand implements UndoableCommand {
             throws IOException, JimmyTimmyException {
         removedTask = tasks.deleteTask(index);
         storage.save(tasks.getTasks());
-        return "Noted. I've removed this task:\n  " + removedTask +
-                "\nNow you have " + tasks.size() + " tasks in the list.";
+        return "I've returned this item to the shelves:\n  " + removedTask +
+                "\nNow you have " + tasks.size() + " items in your cart.";
     }
 
     @Override
     public void undo(TaskList tasks, Ui ui, Storage storage) throws JimmyTimmyException, IOException {
         if (removedTask == null) {
-            throw new JimmyTimmyException("No task to undo deletion.");
+            throw new JimmyTimmyException("No items to return.");
         }
         tasks.addTaskAt(index, removedTask);
         storage.save(tasks.getTasks());

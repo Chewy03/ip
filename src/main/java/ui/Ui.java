@@ -33,17 +33,51 @@ public class Ui {
      */
     public void showWelcome() {
         showLine();
-        System.out.println("Hello! I'm JimmyTimmy");
-        System.out.println("What can I do for you?");
+        String welcomeMessage = """
+            \uD83D\uDED2 Welcome to JimmyTimmy – Your ToDo Shopping Cart! \uD83D\uDED2
+            Hello! I’m JimmyTimmy, your trusty shopping-cart buddy. I’ll help you
+            keep track of your grocery items, expiry dates, and promotional deals,
+            so you never forget anything in your cart.
+
+            --- Commands ---
+
+            1. list
+               View all items currently in your cart.
+
+            2. todo <item>
+               Add a grocery item to your cart.
+
+            3. deadline <item> /by <yyyy-MM-dd HH:mm>
+               Add a grocery item with an expiry date.
+
+            4. event <item> /from <yyyy-MM-dd HH:mm> /to <yyyy-MM-dd HH:mm>
+               Add a promotional period or sale.
+
+            5. mark <item number>
+               Mark an item as purchased.
+
+            6. unmark <item number>
+               Return a purchased item back to the cart.
+
+            7. delete <item number>
+               Remove an item from the cart.
+
+            8. undo / redo
+               Undo or redo the last action.
+
+            9. bye
+               Exit JimmyTimmy and save your cart.
+
+            --- Tips ---
+            - Use correct date/time format: yyyy-MM-dd HH:mm
+            - Use item numbers from 'list' when marking, unmarking, or deleting
+            - Have fun! \uD83D\uDE0E
+            """;
+        System.out.println(welcomeMessage);
         showLine();
     }
 
-    /**
-     * Shows the goodbye message when the program exits.
-     */
-    public void showGoodbye() {
-        System.out.println("Bye. Hope to see you again soon!");
-    }
+
 
     /**
      * Displays a generic message to the user.
@@ -61,11 +95,11 @@ public class Ui {
      */
     public void showTasks(TaskList tasks) throws JimmyTimmyException {
         if (tasks.isEmpty()) {
-            showMessage("Your task list is empty!");
+            showMessage("Your cart is empty!");
             return;
         }
 
-        showMessage("Here are the tasks in your list:");
+        showMessage("Here are the items in your cart:");
         for (int i = 0; i < tasks.size(); i++) {
             Task task = tasks.getTask(i);
             System.out.println((i + 1) + ". " + task);
@@ -76,7 +110,7 @@ public class Ui {
      * Displays an error message when loading tasks from a file fails.
      */
     public void showLoadingError() {
-        System.out.println("Failed to load tasks from file. Starting with an empty list.");
+        System.out.println("Failed to retrieve shopping bag. Starting with an empty cart.");
     }
 
     /**
@@ -104,9 +138,9 @@ public class Ui {
      * @param totalTasks the current total number of tasks
      */
     public void showTaskAdded(Task task, int totalTasks) {
-        System.out.println("Got it. I've added this task:");
+        System.out.println("Here is your updated cart:");
         System.out.println("  " + task);
-        System.out.println("Now you have " + totalTasks + " tasks in the list.");
+        System.out.println("Now you have " + totalTasks + " items in your cart.");
     }
 
     /**
@@ -116,9 +150,9 @@ public class Ui {
      * @param totalTasks the current total number of tasks
      */
     public void showTaskRemoved(Task task, int totalTasks) {
-        System.out.println("Noted. I've removed this task:");
+        System.out.println("Here is your updated cart:");
         System.out.println("  " + task);
-        System.out.println("Now you have " + totalTasks + " tasks in the list.");
+        System.out.println("Now you have " + totalTasks + " items in your cart.");
     }
 
     /**
@@ -127,7 +161,7 @@ public class Ui {
      * @param task the task that was marked as done
      */
     public void showTaskMarked(Task task) {
-        System.out.println("Nice! I've marked this task as done:");
+        System.out.println("Nice! I've checked this item out of your cart:");
         System.out.println("  " + task);
     }
 
@@ -137,7 +171,7 @@ public class Ui {
      * @param task the task that was marked as not done
      */
     public void showTaskUnmarked(Task task) {
-        System.out.println("OK, I've marked this task as not done yet:");
+        System.out.println("Aw, I've returned this item to the cart:");
         System.out.println("  " + task);
     }
 
@@ -149,9 +183,9 @@ public class Ui {
      */
     public void showTaskList(ArrayList<Task> tasks) throws JimmyTimmyException {
         if (tasks.isEmpty()) {
-            throw new JimmyTimmyException("Your list is empty!");
+            throw new JimmyTimmyException("Your cart is empty!");
         } else {
-            System.out.println("Here are the tasks in your list:");
+            System.out.println("Here are the items in your cart:");
             for (int i = 0; i < tasks.size(); i++) {
                 System.out.println((i + 1) + ". " + tasks.get(i));
             }
@@ -166,9 +200,9 @@ public class Ui {
      */
     public void showFoundTasks(ArrayList<Task> tasks) {
         if (tasks.isEmpty()) {
-            System.out.println("No matching tasks found!");
+            System.out.println("No matching item found!");
         } else {
-            System.out.println("Here are the matching tasks in your list:");
+            System.out.println("Here are the matching items in your cart:");
             int count = 1;
             for (Task task : tasks) {
                 System.out.println(count + "." + task);

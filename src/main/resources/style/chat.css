@@ -1,0 +1,175 @@
+/* Root background */
+.root {
+    -fx-font-family: "Segoe UI", "Arial";
+    -fx-background-color: white;
+}
+
+/* ScrollPane styling */
+.scroll-pane {
+    -fx-background-image: url("/images/Background.png");
+    -fx-background-size: cover;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center center;
+    -fx-background-color: transparent;
+}
+
+/* ScrollPane content (viewport) */
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Optional: remove inner padding/margin */
+.scroll-pane > .content {
+    -fx-background-color: transparent;
+}
+
+/* Modern slim scrollbar */
+.scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8;
+}
+.scroll-pane .thumb {
+    -fx-background-color: rgba(0,0,0,0.25);
+    -fx-background-radius: 4;
+}
+.scroll-pane .track {
+    -fx-background-color: transparent;
+}
+
+/* Common bubble styling */
+.user-bubble, .jt-bubble {
+    -fx-padding: 10 14;
+    -fx-background-radius: 18;
+    -fx-font-size: 14px;
+    -fx-wrap-text: true;
+    -fx-max-width: 270;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 6, 0, 2, 2);
+}
+
+/* User bubble (blue gradient, bottom-right flow) */
+.user-bubble {
+    -fx-background-color: linear-gradient(to bottom right, #42a5f5, #1e88e5);
+    -fx-text-fill: white;
+    -fx-font-weight: 500;
+}
+
+/* JimmyTimmy bot bubble (pastel yellow gradient, top-left flow) */
+.jt-bubble {
+    -fx-background-color: linear-gradient(to top left, #fffde7, #ffe082);
+    -fx-text-fill: #333;
+    -fx-font-weight: 500;
+}
+
+/* Input bar */
+.text-field {
+    -fx-background-color: #f5f5f5;
+    -fx-background-radius: 20;
+    -fx-padding: 8 14;
+    -fx-font-size: 14px;
+    -fx-border-color: #ddd;
+    -fx-border-radius: 20;
+}
+
+.text-field:focused {
+    -fx-border-color: #0078d7;
+    -fx-background-color: #fff;
+}
+
+/* Send button */
+.button.send-button {
+    -fx-background-color: #0078d7;
+    -fx-text-fill: white;
+    -fx-background-radius: 20;
+    -fx-padding: 6 14;
+    -fx-cursor: hand;
+    -fx-font-size: 14px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 3, 0, 1, 1);
+}
+
+.button.send-button:hover {
+    -fx-background-color: #005bb5;
+}
+
+.titled-pane {
+    -fx-background-color: #f9f9f9;
+    -fx-border-color: #ddd;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+}
+
+.titled-pane > .title {
+    -fx-background-color: #0078d7;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5 5 0 0;
+    -fx-padding: 6 10;
+}
+
+.titled-pane > *.content {
+    -fx-background-color: #ffffff;
+    -fx-padding: 10;
+}
+/* Instructions TitledPane */
+.instructions-pane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+/* Title styling */
+.instructions-pane > .title {
+    -fx-background-color: #f0f0f0;
+    -fx-text-fill: #0078d7;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-padding: 10 12;
+    -fx-border-radius: 8 8 0 0;
+    -fx-background-radius: 8 8 0 0;
+}
+
+/* Content background */
+.instructions-pane > .content {
+    -fx-background-color: #fffde7;  /* pastel yellow */
+    -fx-padding: 0;
+    -fx-border-radius: 0 0 8 8;
+    -fx-background-radius: 0 0 8 8;
+    -fx-max-height: 150px;           /* shorter dropdown */
+}
+
+/* Make content scrollable without inheriting chat background */
+.instructions-pane .scroll-pane {
+    -fx-background-image: null;
+    -fx-background-color: #fffde7;
+    -fx-border-color: transparent;
+}
+
+/* ScrollPane viewport for instructions */
+.instructions-pane .scroll-pane .viewport {
+    -fx-background-color: #fffde7;
+}
+
+/* Optional: modern slim scrollbar inside instructions */
+.instructions-pane .scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 6px;
+}
+.instructions-pane .scroll-pane .thumb {
+    -fx-background-color: rgba(0,0,0,0.25);
+    -fx-background-radius: 3;
+}
+.instructions-pane .scroll-pane .track {
+    -fx-background-color: transparent;
+}
+
+/* Label inside instructions */
+.instructions-label {
+    -fx-font-size: 14px;
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-text-fill: #444;
+    -fx-padding: 8;
+}
+
+
+
+
