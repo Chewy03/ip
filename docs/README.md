@@ -1,6 +1,6 @@
 # JimmyTimmy User Guide
 
-<img width="1710" height="1066" alt="image" src="https://github.com/user-attachments/assets/b63bfcbb-014a-4f7c-ba32-ea5fe3ddc2a2" />
+<img alt="image" src="https://github.com/user-attachments/assets/b63bfcbb-014a-4f7c-ba32-ea5fe3ddc2a2" />
 
 JimmyTimmy is a todo shopping cart chatbot designed to help you manage tasks effortlessly. With an intuitive user interface and a responsive, friendly personality, it makes organizing your day easier and more enjoyable. Whether it’s adding, marking, or undoing tasks, JimmyTimmy keeps track of your to-dos with precision and efficiency.
 ## Adding deadlines
